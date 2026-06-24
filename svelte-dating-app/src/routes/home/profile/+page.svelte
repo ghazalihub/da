@@ -1,72 +1,124 @@
 <script lang="ts">
     import { userStore } from '$lib/stores/user';
-    import { Settings, Edit2, Camera, ShieldCheck, MapPin, Briefcase, GraduationCap } from '@lucide/svelte';
+    import { Settings, Edit2, Camera, ShieldCheck, MapPin, Briefcase, GraduationCap, Heart, Eye, XCircle, Grid3X3 } from '@lucide/svelte';
     import { goto } from '$app/navigation';
+    import UserGallery from '$lib/components/ui/UserGallery.svelte';
 
     let user = $derived($userStore);
+    let view = $state('info'); // 'info' or 'gallery'
 </script>
 
-<div class="bg-white min-h-full pb-10">
+<div class="bg-white min-h-full pb-32">
     {#if user}
-        <div class="relative h-64 bg-gray-100">
+        <div class="relative h-64 bg-gray-100 shrink-0">
             <img src={user.userProfilePhoto} alt={user.userFullname} class="w-full h-full object-cover" />
-            <button class="absolute bottom-4 right-4 p-3 bg-pink-500 rounded-full text-white shadow-lg">
+            <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-transparent"></div>
+            <button class="absolute bottom-4 right-4 p-3 bg-pink-500 rounded-full text-white shadow-xl active:scale-95 transition-transform z-10 border-2 border-white">
                 <Camera size={24} />
             </button>
         </div>
 
-        <div class="px-6 -mt-10 relative">
-            <div class="bg-white rounded-3xl p-6 shadow-xl">
-                <div class="flex justify-between items-start mb-4">
+        <div class="px-6 -mt-10 relative z-10">
+            <div class="bg-white rounded-3xl p-6 shadow-xl border border-gray-100">
+                <div class="flex justify-between items-start mb-6">
                     <div>
-                        <h1 class="text-2xl font-bold flex items-center gap-2">
+                        <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-800">
                             {user.userFullname}
                             {#if user.userIsVerified}
                                 <ShieldCheck size={24} class="text-blue-500" />
                             {/if}
                         </h1>
-                        <p class="text-gray-500 flex items-center gap-1">
-                            <MapPin size={16} /> {user.userLocality}, {user.userCountry}
+                        <p class="text-gray-500 flex items-center gap-1 mt-1 font-medium">
+                            <MapPin size={16} class="text-pink-500" /> {user.userLocality}, {user.userCountry}
                         </p>
                     </div>
-                    <button onclick={() => goto('/home/profile/edit')} class="p-2 bg-gray-100 rounded-full text-gray-600">
+                    <button onclick={() => goto('/home/profile/edit')} class="p-3 bg-gray-50 rounded-2xl text-gray-400 hover:text-pink-500 transition-colors">
                         <Edit2 size={20} />
                     </button>
                 </div>
 
-                <div class="grid grid-cols-3 gap-4 border-t pt-4">
-                    <div class="text-center">
-                        <p class="font-bold text-lg">{user.userTotalLikes}</p>
-                        <p class="text-xs text-gray-500 uppercase">Likes</p>
-                    </div>
-                    <div class="text-center border-x">
-                        <p class="font-bold text-lg">{user.userTotalVisits}</p>
-                        <p class="text-xs text-gray-500 uppercase">Visits</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="font-bold text-lg">{user.userProfileQualityScore}%</p>
-                        <p class="text-xs text-gray-500 uppercase">Quality</p>
-                    </div>
+                <div class="grid grid-cols-3 gap-2 border-t border-gray-50 pt-6">
+                    <button onclick={() => goto('/home/profile/likes')} class="text-center group">
+                        <p class="font-black text-xl text-gray-900 group-hover:text-pink-600 transition-colors">{user.userTotalLikes}</p>
+                        <div class="flex items-center justify-center gap-1 text-[10px] text-gray-400 uppercase font-bold tracking-widest mt-1">
+                            <Heart size={10} /> Likes
+                        </div>
+                    </button>
+                    <button onclick={() => goto('/home/profile/visits')} class="text-center border-x border-gray-50 group">
+                        <p class="font-black text-xl text-gray-900 group-hover:text-pink-600 transition-colors">{user.userTotalVisits}</p>
+                        <div class="flex items-center justify-center gap-1 text-[10px] text-gray-400 uppercase font-bold tracking-widest mt-1">
+                            <Eye size={10} /> Visits
+                        </div>
+                    </button>
+                    <button onclick={() => goto('/home/profile/disliked')} class="text-center group">
+                        <p class="font-black text-xl text-gray-900 group-hover:text-pink-600 transition-colors">{user.userTotalDisliked}</p>
+                        <div class="flex items-center justify-center gap-1 text-[10px] text-gray-400 uppercase font-bold tracking-widest mt-1">
+                            <XCircle size={10} /> Disliked
+                        </div>
+                    </button>
                 </div>
             </div>
         </div>
 
-        <div class="px-6 mt-6 space-y-6">
-            <section>
-                <h3 class="text-lg font-bold mb-2">About Me</h3>
-                <p class="text-gray-600 leading-relaxed">{user.userBio || 'No bio provided'}</p>
-            </section>
+        <div class="px-6 mt-8">
+            <div class="flex p-1 bg-gray-100 rounded-2xl mb-8">
+                <button
+                    onclick={() => view = 'info'}
+                    class="flex-1 py-3 rounded-xl font-bold text-sm transition-all {view === 'info' ? 'bg-white text-pink-500 shadow-sm' : 'text-gray-400'}"
+                >
+                    INFO
+                </button>
+                <button
+                    onclick={() => view = 'gallery'}
+                    class="flex-1 py-3 rounded-xl font-bold text-sm transition-all {view === 'gallery' ? 'bg-white text-pink-500 shadow-sm' : 'text-gray-400'}"
+                >
+                    GALLERY
+                </button>
+            </div>
 
-            <section class="space-y-3">
-                <div class="flex items-center gap-3 text-gray-700">
-                    <Briefcase size={20} class="text-pink-500" />
-                    <span>{user.userJobTitle || 'Job Title'}</span>
+            {#if view === 'info'}
+                <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <section>
+                        <h3 class="text-sm font-black text-gray-400 uppercase tracking-[0.2em] mb-4 ml-1">About Me</h3>
+                        <p class="text-gray-600 leading-relaxed bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm italic">
+                            "{user.userBio || 'No bio provided'}"
+                        </p>
+                    </section>
+
+                    <section class="space-y-4">
+                        <h3 class="text-sm font-black text-gray-400 uppercase tracking-[0.2em] mb-4 ml-1">Identity</h3>
+                        <div class="flex items-center gap-4 bg-white p-5 rounded-2xl border border-gray-100 shadow-sm group hover:border-pink-200 transition-colors">
+                            <div class="p-3 bg-pink-50 text-pink-500 rounded-xl group-hover:scale-110 transition-transform">
+                                <Briefcase size={20} />
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Occupation</p>
+                                <p class="font-bold text-gray-700">{user.userJobTitle || 'Not specified'}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 bg-white p-5 rounded-2xl border border-gray-100 shadow-sm group hover:border-pink-200 transition-colors">
+                            <div class="p-3 bg-pink-50 text-pink-500 rounded-xl group-hover:scale-110 transition-transform">
+                                <GraduationCap size={20} />
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Education</p>
+                                <p class="font-bold text-gray-700">{user.userSchool || 'Not specified'}</p>
+                            </div>
+                        </div>
+                    </section>
                 </div>
-                <div class="flex items-center gap-3 text-gray-700">
-                    <GraduationCap size={20} class="text-pink-500" />
-                    <span>{user.userSchool || 'School'}</span>
+            {:else}
+                <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <h3 class="text-sm font-black text-gray-400 uppercase tracking-[0.2em] mb-6 ml-1 flex items-center gap-2">
+                        <Grid3X3 size={16} /> My Gallery
+                    </h3>
+                    <UserGallery
+                        images={Object.values(user.userGallery || {})}
+                        onUpload={() => {}}
+                        onDelete={() => {}}
+                    />
                 </div>
-            </section>
+            {/if}
         </div>
     {/if}
 </div>

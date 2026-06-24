@@ -2,7 +2,8 @@
     import { onMount } from 'svelte';
     import { UsersApi } from '$lib/services/users';
     import { userStore } from '$lib/stores/user';
-    import { Heart, X } from '@lucide/svelte';
+    import ProfileCard from '$lib/components/ui/ProfileCard.svelte';
+    import { Sparkles, MapPin } from '@lucide/svelte';
 
     let users = $state<any[]>([]);
     let loading = $state(true);
@@ -15,60 +16,48 @@
         }
     });
 
-    function handleLike() {
-        // Logic for liking
-        next();
-    }
-
-    function handleDislike() {
-        // Logic for disliking
-        next();
-    }
-
     function next() {
         currentIndex++;
     }
 </script>
 
-<div class="h-full bg-gray-50 flex flex-col items-center justify-center p-4">
-    {#if loading}
-        <div class="animate-pulse flex flex-col items-center">
-            <div class="w-64 h-96 bg-gray-200 rounded-3xl mb-4"></div>
-            <div class="h-4 w-48 bg-gray-200 rounded"></div>
+<div class="h-full flex flex-col p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-black text-gray-800">Discover</h1>
+            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest flex items-center gap-1 mt-1">
+                <MapPin size={12} class="text-pink-500" /> New York, USA
+            </p>
         </div>
-    {:else if currentIndex < users.length}
-        {@const currentUser = users[currentIndex]}
-        <div class="relative w-full max-w-sm h-[70vh] rounded-3xl overflow-hidden shadow-xl bg-white group">
-            <img
-                src={currentUser.user_photo_link}
-                alt={currentUser.user_fullname}
-                class="w-full h-full object-cover"
-            />
+        <button class="p-3 bg-white rounded-2xl shadow-sm text-pink-500 hover:scale-105 transition-transform border border-gray-50">
+            <Sparkles size={20} fill="currentColor" />
+        </button>
+    </div>
 
-            <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent text-white">
-                <h2 class="text-2xl font-bold">{currentUser.user_fullname}, {currentUser.age || ''}</h2>
-                <p class="text-sm opacity-90">{currentUser.user_job_title} at {currentUser.user_school}</p>
+    <div class="flex-1 flex items-center justify-center relative">
+        {#if loading}
+            <div class="w-full aspect-[3/4] bg-white rounded-[2rem] shadow-xl animate-pulse flex items-center justify-center">
+                <div class="w-20 h-20 border-4 border-pink-100 border-t-pink-500 rounded-full animate-spin"></div>
             </div>
-        </div>
-
-        <div class="flex gap-6 mt-8">
-            <button
-                onclick={handleDislike}
-                class="w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center text-red-500 hover:scale-110 transition-transform"
-            >
-                <X size={32} />
-            </button>
-            <button
-                onclick={handleLike}
-                class="w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center text-green-500 hover:scale-110 transition-transform"
-            >
-                <Heart size={32} fill="currentColor" />
-            </button>
-        </div>
-    {:else}
-        <div class="text-center">
-            <h3 class="text-xl font-medium text-gray-900">No more people around you</h3>
-            <p class="text-gray-500">Try changing your search filters</p>
-        </div>
-    {/if}
+        {:else if currentIndex < users.length}
+            {@const currentUser = users[currentIndex]}
+            <div class="w-full max-w-sm animate-in zoom-in-95 duration-500">
+                <ProfileCard
+                    user={currentUser}
+                    onLike={next}
+                    onDislike={next}
+                    onInfo={() => {}}
+                />
+            </div>
+        {:else}
+            <div class="text-center space-y-4 max-w-xs">
+                <div class="w-20 h-20 bg-pink-50 rounded-full flex items-center justify-center mx-auto text-pink-500">
+                    <Sparkles size={32} />
+                </div>
+                <h3 class="text-xl font-bold text-gray-900">No more people around you</h3>
+                <p class="text-gray-500 text-sm leading-relaxed">Try increasing your distance range or changing your filters in settings.</p>
+                <a href="/home/settings" class="inline-block text-pink-500 font-bold text-sm hover:underline uppercase tracking-widest">Go to Settings</a>
+            </div>
+        {/if}
+    </div>
 </div>
