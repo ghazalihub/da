@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:universal_io/io.dart';
 
 import 'package:dating_app/constants/constants.dart';
 import 'package:dating_app/helpers/app_localizations.dart';

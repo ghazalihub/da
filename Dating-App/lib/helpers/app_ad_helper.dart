@@ -1,9 +1,12 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:universal_io/io.dart';
 
 import 'package:dating_app/constants/constants.dart';
 import 'package:dating_app/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:dating_app/dialogs/web_ad_dialog.dart';
+import 'package:dating_app/main.dart';
 
 class AppAdHelper {
   // Local Variables
@@ -12,6 +15,7 @@ class AppAdHelper {
 
   // Get Interstitial Ad ID
   static String get _interstitialID {
+    if (kIsWeb) return "";
     if (Platform.isAndroid) {
       return ANDROID_INTERSTITIAL_ID;
     } else if (Platform.isIOS) {
@@ -23,6 +27,7 @@ class AppAdHelper {
 
   // Create Interstitial Ad
   Future<void> _createInterstitialAd() async {
+    if (kIsWeb) return;
     await InterstitialAd.load(
         adUnitId: _interstitialID,
         request: const AdRequest(),
@@ -42,10 +47,23 @@ class AppAdHelper {
 
   // Show Interstitial Ads for Non VIP Users
   void showInterstitialAd() async {
-    // Check "Active" VIP Status
+     // Check "Active" VIP Status
     if (UserModel().userIsVip) {
       // Debug
       debugPrint('User is VIP Member!');
+      return;
+    }
+
+    if (kIsWeb) {
+      // For PWA ads, we show a full-screen custom dialog
+      debugPrint('PWA: Showing web interstitial ad');
+      if (navigatorKey.currentContext != null) {
+        showDialog(
+          context: navigatorKey.currentContext!,
+          barrierDismissible: false,
+          builder: (context) => const WebAdDialog(),
+        );
+      }
       return;
     }
 
@@ -78,6 +96,7 @@ class AppAdHelper {
 
   // Dispose Interstitial Ad
   void disposeInterstitialAd() {
+    if (kIsWeb) return;
     _interstitialAd?.dispose();
     _interstitialAd = null;
   }

@@ -1,6 +1,6 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+import 'package:universal_io/io.dart';
 import 'package:dating_app/constants/constants.dart';
 import 'package:dating_app/datas/user.dart';
 import 'package:dating_app/helpers/app_helper.dart';
@@ -681,10 +681,18 @@ class UserModel extends Model {
     String imageName =
         userId + DateTime.now().millisecondsSinceEpoch.toString();
     // Upload file
-    final UploadTask uploadTask = _storageRef
-        .ref()
-        .child('$path/$userId/$imageName')
-        .putFile(file);
+    final UploadTask uploadTask;
+    if (kIsWeb) {
+      uploadTask = _storageRef
+          .ref()
+          .child('$path/$userId/$imageName')
+          .putData(await file.readAsBytes());
+    } else {
+      uploadTask = _storageRef
+          .ref()
+          .child('$path/$userId/$imageName')
+          .putFile(file);
+    }
     final TaskSnapshot snapshot = await uploadTask;
     String url = await snapshot.ref.getDownloadURL();
     // return file link

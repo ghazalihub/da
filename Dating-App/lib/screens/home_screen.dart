@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io';
+import 'package:universal_io/io.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dating_app/api/conversations_api.dart';
@@ -15,7 +15,10 @@ import 'package:dating_app/tabs/discover_tab.dart';
 import 'package:dating_app/tabs/matches_tab.dart';
 import 'package:dating_app/tabs/profile_tab.dart';
 import 'package:dating_app/widgets/notification_counter.dart';
+import 'package:dating_app/helpers/pwa_helper.dart';
+import 'package:dating_app/widgets/pwa_install_banner.dart';
 import 'package:dating_app/widgets/svg_icon.dart';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:dating_app/constants/constants.dart';
@@ -324,7 +327,15 @@ class HomeScreenState extends State<HomeScreen> {
               label: _i18n.translate("profile")),
         ],
       ),
-      body: _showCurrentNavBar(),
+      body: Column(
+        children: [
+          if (kIsWeb)
+            PwaInstallBanner(onInstall: () {
+              installPwa();
+            }),
+          Expanded(child: _showCurrentNavBar()),
+        ],
+      ),
     );
   }
 

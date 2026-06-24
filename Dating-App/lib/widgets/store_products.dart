@@ -2,9 +2,11 @@ import 'package:dating_app/helpers/app_localizations.dart';
 import 'package:dating_app/models/app_model.dart';
 import 'package:dating_app/models/user_model.dart';
 import 'package:dating_app/widgets/my_circular_progress.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class StoreProducts extends StatefulWidget {
   final Widget icon;
@@ -26,41 +28,73 @@ class StoreProductsState extends State<StoreProducts> {
   void initState() {
     super.initState();
 
-    // Check google play services
-    InAppPurchase.instance.isAvailable().then((result) {
-      if (mounted) {
-        setState(() {
-          _storeIsAvailable =
-              result; // if false the store can not be reached or accessed
-        });
-      }
-    });
+    if (kIsWeb) {
+      _storeIsAvailable = true;
+      // Mocking products for web as an example.
+      // In a real app, you would fetch these from your backend or a config file.
+      _products = [
+        ProductDetails(
+          id: 'vip_1_month',
+          title: 'VIP 1 Month',
+          description: 'Unlock all features for 1 month',
+          price: '\$9.99',
+          rawPrice: 9.99,
+          currencyCode: 'USD',
+        ),
+        ProductDetails(
+          id: 'vip_6_months',
+          title: 'VIP 6 Months',
+          description: 'Unlock all features for 6 months',
+          price: '\$49.99',
+          rawPrice: 49.99,
+          currencyCode: 'USD',
+        ),
+        ProductDetails(
+          id: 'vip_1_year',
+          title: 'VIP 1 Year',
+          description: 'Unlock all features for 1 year',
+          price: '\$89.99',
+          rawPrice: 89.99,
+          currencyCode: 'USD',
+        ),
+      ];
+    } else {
+      // Check google play services
+      InAppPurchase.instance.isAvailable().then((result) {
+        if (mounted) {
+          setState(() {
+            _storeIsAvailable =
+                result; // if false the store can not be reached or accessed
+          });
+        }
+      });
 
-    // Get product subscriptions from google play store / apple store
-    InAppPurchase.instance
-        .queryProductDetails(AppModel().appInfo.subscriptionIds.toSet())
-        .then((ProductDetailsResponse response) {
-      /// Update UI
-      if (mounted) {
-        setState(() {
-          // Get product list
-          _products = response.productDetails;
-          // Check result
-          if (_products!.isNotEmpty) {
-            // Order price by ASC
-            _products!.sort((a, b) {
-              // Get int prices to be ordered
-              final priceA =
-                  int.parse(a.price.replaceAll(RegExp(r'[^0-9]'), ''));
-              final priceB =
-                  int.parse(b.price.replaceAll(RegExp(r'[^0-9]'), ''));
-              // ASC order
-              return priceA.compareTo(priceB);
-            });
-          }
-        });
-      }
-    });
+      // Get product subscriptions from google play store / apple store
+      InAppPurchase.instance
+          .queryProductDetails(AppModel().appInfo.subscriptionIds.toSet())
+          .then((ProductDetailsResponse response) {
+        /// Update UI
+        if (mounted) {
+          setState(() {
+            // Get product list
+            _products = response.productDetails;
+            // Check result
+            if (_products!.isNotEmpty) {
+              // Order price by ASC
+              _products!.sort((a, b) {
+                // Get int prices to be ordered
+                final priceA =
+                    int.parse(a.price.replaceAll(RegExp(r'[^0-9]'), ''));
+                final priceB =
+                    int.parse(b.price.replaceAll(RegExp(r'[^0-9]'), ''));
+                // ASC order
+                return priceA.compareTo(priceB);
+              });
+            }
+          });
+        }
+      });
+    }
   }
 
   @override
@@ -117,14 +151,25 @@ class StoreProductsState extends State<StoreProducts> {
                   onPressed: userModel.activeVipId == item.id
                       ? null
                       : () async {
-                          // Purchase parameters
-                          final pParam = PurchaseParam(
-                            productDetails: item,
-                          );
+                          if (kIsWeb) {
+                            // On web, redirect to a external payment page (Stripe, PayPal, etc.)
+                            // Example:
+                            final Uri url = Uri.parse('https://your-payment-gateway.com/pay?plan=${item.id}&userId=${userModel.user.userId}');
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(url);
+                            } else {
+                              debugPrint('Could not launch payment url');
+                            }
+                          } else {
+                            // Purchase parameters
+                            final pParam = PurchaseParam(
+                              productDetails: item,
+                            );
 
-                          /// Subscribe
-                          InAppPurchase.instance
-                              .buyNonConsumable(purchaseParam: pParam);
+                            /// Subscribe
+                            InAppPurchase.instance
+                                .buyNonConsumable(purchaseParam: pParam);
+                          }
                         },
                   child: userModel.activeVipId == item.id
                       ? Text(_i18n.translate("ACTIVE"),

@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:universal_io/io.dart';
 
 import 'package:dating_app/api/verification_api.dart';
 import 'package:dating_app/dialogs/common_dialogs.dart';
