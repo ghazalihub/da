@@ -15,7 +15,9 @@ import 'package:dating_app/tabs/discover_tab.dart';
 import 'package:dating_app/tabs/matches_tab.dart';
 import 'package:dating_app/tabs/profile_tab.dart';
 import 'package:dating_app/widgets/notification_counter.dart';
+import 'package:dating_app/widgets/pwa_install_banner.dart';
 import 'package:dating_app/widgets/svg_icon.dart';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:dating_app/constants/constants.dart';
@@ -324,7 +326,12 @@ class HomeScreenState extends State<HomeScreen> {
               label: _i18n.translate("profile")),
         ],
       ),
-      body: _showCurrentNavBar(),
+      body: Column(
+        children: [
+          if (kIsWeb) const PwaInstallBanner(),
+          Expanded(child: _showCurrentNavBar()),
+        ],
+      ),
     );
   }
 
