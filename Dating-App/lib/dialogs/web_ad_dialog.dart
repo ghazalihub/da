@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dating_app/helpers/app_localizations.dart';
+import 'package:flutter_adsense/flutter_adsense.dart';
 
 class WebAdDialog extends StatefulWidget {
   const WebAdDialog({super.key});
@@ -46,27 +47,26 @@ class WebAdDialogState extends State<WebAdDialog> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 300,
-                  height: 250,
+                  width: 320,
+                  height: 480,
                   color: Colors.white,
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.ad_units, size: 50, color: Colors.blue),
-                        const SizedBox(height: 16),
                         Text(
                           i18n.translate('advertisement') ?? 'Advertisement',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                         ),
                         const SizedBox(height: 8),
-                        const Text('Your ad content here'),
-                        const SizedBox(height: 16),
-                        // You could add a button to visit a sponsor URL
-                        ElevatedButton(
-                          onPressed: () {},
-                          child: const Text('Visit Sponsor'),
-                        )
+                        // Use AdsenseWidget for PWA ads
+                        const AdsenseWidget(
+                          adClient: 'ca-pub-XXXXXXXXXXXXXXXX',
+                          adSlot: '1234567890',
+                          width: 300,
+                          height: 250,
+                          adFormat: 'rectangle',
+                        ),
                       ],
                     ),
                   ),

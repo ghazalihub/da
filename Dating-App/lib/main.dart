@@ -14,6 +14,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_adsense/flutter_adsense.dart';
 
 import 'firebase_options.dart';
 import 'helpers/app_notifications.dart';
@@ -21,6 +22,10 @@ import 'helpers/app_notifications.dart';
 void main() async {
   // Initialized before calling runApp to init firebase app
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (kIsWeb) {
+    FlutterAdsense().initialize('ca-pub-XXXXXXXXXXXXXXXX');
+  }
 
   /// ***  Initialize Firebase App *** ///
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);

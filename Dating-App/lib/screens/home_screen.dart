@@ -15,10 +15,10 @@ import 'package:dating_app/tabs/discover_tab.dart';
 import 'package:dating_app/tabs/matches_tab.dart';
 import 'package:dating_app/tabs/profile_tab.dart';
 import 'package:dating_app/widgets/notification_counter.dart';
+import 'package:dating_app/helpers/pwa_helper.dart';
 import 'package:dating_app/widgets/pwa_install_banner.dart';
 import 'package:dating_app/widgets/svg_icon.dart';
 import 'package:flutter/foundation.dart';
-import 'dart:js' as js;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:dating_app/constants/constants.dart';
@@ -331,7 +331,7 @@ class HomeScreenState extends State<HomeScreen> {
         children: [
           if (kIsWeb)
             PwaInstallBanner(onInstall: () {
-              js.context.callMethod('installPwa');
+              installPwa();
             }),
           Expanded(child: _showCurrentNavBar()),
         ],

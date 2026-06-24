@@ -145,8 +145,12 @@ class AppHelper {
       // geocoding package does not support web.
       // Use a web-safe reverse geocoding API (e.g., OpenStreetMap Nominatim)
       try {
-        final response = await http.get(Uri.parse(
-            'https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1'));
+        final response = await http.get(
+            Uri.parse(
+                'https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1'),
+            headers: {
+              'User-Agent': 'DatingAppPWA/1.0',
+            });
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
           final address = data['address'];
