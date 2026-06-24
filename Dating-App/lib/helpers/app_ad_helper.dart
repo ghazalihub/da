@@ -5,7 +5,8 @@ import 'package:dating_app/constants/constants.dart';
 import 'package:dating_app/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'dart:js' as js;
+import 'package:dating_app/dialogs/web_ad_dialog.dart';
+import 'package:dating_app/main.dart';
 
 class AppAdHelper {
   // Local Variables
@@ -46,17 +47,23 @@ class AppAdHelper {
 
   // Show Interstitial Ads for Non VIP Users
   void showInterstitialAd() async {
-    if (kIsWeb) {
-      // For PWA "advertisement", we can prompt the user to install the app
-      // if they haven't already.
-      debugPrint('PWA: Showing install prompt as an ad alternative');
-      js.context.callMethod('installPwa');
-      return;
-    }
-    // Check "Active" VIP Status
+     // Check "Active" VIP Status
     if (UserModel().userIsVip) {
       // Debug
       debugPrint('User is VIP Member!');
+      return;
+    }
+
+    if (kIsWeb) {
+      // For PWA ads, we show a full-screen custom dialog
+      debugPrint('PWA: Showing web interstitial ad');
+      if (navigatorKey.currentContext != null) {
+        showDialog(
+          context: navigatorKey.currentContext!,
+          barrierDismissible: false,
+          builder: (context) => const WebAdDialog(),
+        );
+      }
       return;
     }
 

@@ -18,6 +18,7 @@ import 'package:dating_app/widgets/notification_counter.dart';
 import 'package:dating_app/widgets/pwa_install_banner.dart';
 import 'package:dating_app/widgets/svg_icon.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:js' as js;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:dating_app/constants/constants.dart';
@@ -328,7 +329,10 @@ class HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
-          if (kIsWeb) const PwaInstallBanner(),
+          if (kIsWeb)
+            PwaInstallBanner(onInstall: () {
+              js.context.callMethod('installPwa');
+            }),
           Expanded(child: _showCurrentNavBar()),
         ],
       ),

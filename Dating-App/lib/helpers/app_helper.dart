@@ -22,7 +22,20 @@ class AppHelper {
 
   /// Restore VIP Account Subscription
   Future<void> restoreVipAccount({bool showMsg = false}) async {
-    if (kIsWeb) return;
+    if (kIsWeb) {
+      // On web, "Restore" means checking the user profile in Firestore
+      // which is already done by ScopedModel/UserModel listener.
+      // But we can trigger a manual refresh or show a feedback.
+      final String userId = UserModel().user.userId;
+      if (userId.isNotEmpty) {
+        await UserModel().getUser(userId).then((userDoc) {
+          if (userDoc.exists) {
+            UserModel().updateUserObject(userDoc.data()!);
+          }
+        });
+      }
+      return;
+    }
     try {
       await InAppPurchase.instance.restorePurchases();
       // Check

@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:dating_app/helpers/app_localizations.dart';
-import 'dart:js' as js;
 
-class PwaInstallBanner extends StatelessWidget {
-  const PwaInstallBanner({super.key});
+class PwaInstallBanner extends StatefulWidget {
+  final VoidCallback onInstall;
+
+  const PwaInstallBanner({super.key, required this.onInstall});
+
+  @override
+  PwaInstallBannerState createState() => PwaInstallBannerState();
+}
+
+class PwaInstallBannerState extends State<PwaInstallBanner> {
+  bool _isVisible = true;
 
   @override
   Widget build(BuildContext context) {
+    if (!_isVisible) return const SizedBox.shrink();
+
     final i18n = AppLocalizations.of(context);
 
     return Container(
@@ -22,19 +32,30 @@ class PwaInstallBanner extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  i18n.translate('install_app_for_better_experience'),
+                  i18n.translate('install_app_for_better_experience') ?? 'Install app for better experience',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                Text(i18n.translate('add_to_home_screen_to_use_it_like_a_native_app')),
+                Text(i18n.translate('add_to_home_screen_to_use_it_like_a_native_app') ?? 'Add to home screen to use it like a native app'),
               ],
             ),
           ),
           ElevatedButton(
             onPressed: () {
-              js.context.callMethod('installPwa');
+              widget.onInstall();
+              setState(() {
+                _isVisible = false;
+              });
             },
-            child: Text(i18n.translate('INSTALL')),
+            child: Text(i18n.translate('INSTALL') ?? 'INSTALL'),
           ),
+          IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () {
+              setState(() {
+                _isVisible = false;
+              });
+            },
+          )
         ],
       ),
     );
