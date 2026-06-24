@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:universal_io/io.dart';
 
 import 'package:dating_app/api/blocked_users_api.dart';
 import 'package:dating_app/constants/constants.dart';

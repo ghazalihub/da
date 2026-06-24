@@ -1,4 +1,5 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:universal_io/io.dart';
 
 import 'package:dating_app/constants/constants.dart';
 import 'package:dating_app/models/user_model.dart';
@@ -12,6 +13,7 @@ class AppAdHelper {
 
   // Get Interstitial Ad ID
   static String get _interstitialID {
+    if (kIsWeb) return "";
     if (Platform.isAndroid) {
       return ANDROID_INTERSTITIAL_ID;
     } else if (Platform.isIOS) {
@@ -23,6 +25,7 @@ class AppAdHelper {
 
   // Create Interstitial Ad
   Future<void> _createInterstitialAd() async {
+    if (kIsWeb) return;
     await InterstitialAd.load(
         adUnitId: _interstitialID,
         request: const AdRequest(),
@@ -42,6 +45,7 @@ class AppAdHelper {
 
   // Show Interstitial Ads for Non VIP Users
   void showInterstitialAd() async {
+    if (kIsWeb) return;
     // Check "Active" VIP Status
     if (UserModel().userIsVip) {
       // Debug
@@ -78,6 +82,7 @@ class AppAdHelper {
 
   // Dispose Interstitial Ad
   void disposeInterstitialAd() {
+    if (kIsWeb) return;
     _interstitialAd?.dispose();
     _interstitialAd = null;
   }

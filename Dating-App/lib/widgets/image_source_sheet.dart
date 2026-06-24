@@ -1,10 +1,10 @@
-import 'dart:io';
-
 import 'package:dating_app/helpers/app_localizations.dart';
 import 'package:dating_app/widgets/svg_icon.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:universal_io/io.dart';
 
 class ImageSourceSheet extends StatelessWidget {
   // Constructor
@@ -15,7 +15,7 @@ class ImageSourceSheet extends StatelessWidget {
   // ImagePicker instance
   final picker = ImagePicker();
 
-  Future<void> selectedImage(BuildContext context, File? image) async {
+  Future<void> selectedImage(BuildContext context, XFile? image) async {
     // init i18n
     final i18n = AppLocalizations.of(context);
 
@@ -38,12 +38,26 @@ class ImageSourceSheet extends StatelessWidget {
               title: i18n.translate("edit_crop_image"),
               aspectRatioPresets: [CropAspectRatioPreset.square],
             ),
+            WebUiSettings(
+              context: context,
+              presentStyle: WebPresentStyle.dialog,
+              size: const CropperSize(
+                width: 520,
+                height: 520,
+              ),
+            ),
           ]);
       // Hold the file
       File? imageFile;
       // Check
       if (croppedFile != null) {
-        imageFile = File(croppedFile.path);
+        if (kIsWeb) {
+           // On web, we might need a different approach if the API expects a File object
+           // But universal_io/io.dart should handle it or we use bytes.
+           imageFile = File(croppedFile.path);
+        } else {
+           imageFile = File(croppedFile.path);
+        }
       }
       // Callback
       onImageSelected(imageFile);
@@ -104,12 +118,15 @@ class ImageSourceSheet extends StatelessWidget {
                   source: ImageSource.gallery,
                 );
                 if (pickedFile == null) return;
-                Future(() => selectedImage(context, File(pickedFile.path)));
+                if (context.mounted) {
+                   await selectedImage(context, pickedFile);
+                }
               },
             ),
           ),
 
           /// Capture image from camera
+          if (!kIsWeb)
           Padding(
             padding: const EdgeInsets.only(left: 10.0),
             child: TextButton.icon(
@@ -123,7 +140,9 @@ class ImageSourceSheet extends StatelessWidget {
                   source: ImageSource.camera,
                 );
                 if (pickedFile == null) return;
-                Future(() => selectedImage(context, File(pickedFile.path)));
+                if (context.mounted) {
+                  await selectedImage(context, pickedFile);
+                }
               },
             ),
           ),

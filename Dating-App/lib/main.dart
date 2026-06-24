@@ -1,4 +1,5 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:universal_io/io.dart';
 
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:dating_app/helpers/app_localizations.dart';
@@ -14,27 +15,30 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-// TODO: Please "scroll down" to see the instructions to fix it.
 import 'firebase_options.dart';
+import 'helpers/app_notifications.dart';
 
 void main() async {
   // Initialized before calling runApp to init firebase app
   WidgetsFlutterBinding.ensureInitialized();
 
   /// ***  Initialize Firebase App *** ///
-  /// 👉 Please check the [Documentation - README FIRST] instructions in the
-  /// Table of Contents at section: [NEW - Firebase initialization for Dating App]
-  /// in order to fix it and generate the required [firebase_options.dart] for your app.
-  /// TODO:
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  // Request notification permissions for web
+  if (kIsWeb) {
+    await AppNotifications().requestNotificationPermissions();
+  }
+
   // Initialize Google Mobile Ads SDK
-  await MobileAds.instance.initialize();
+  if (!kIsWeb) {
+    await MobileAds.instance.initialize();
+  }
 
   /// Update the iOS foreground notification presentation options to allow
   /// heads up notifications.
   /// Check iOS device
-  if (Platform.isIOS) {
+  if (!kIsWeb && Platform.isIOS) {
     await FirebaseMessaging.instance
         .setForegroundNotificationPresentationOptions(
       alert: true,
@@ -113,7 +117,7 @@ class MyApp extends StatelessWidget {
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        elevation: Platform.isIOS ? 0 : 4.0,
+        elevation: (kIsWeb || !Platform.isIOS) ? 4.0 : 0,
         iconTheme: const IconThemeData(color: Colors.black),
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         titleTextStyle: const TextStyle(color: Colors.grey, fontSize: 18),

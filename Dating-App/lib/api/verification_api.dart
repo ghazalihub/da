@@ -1,5 +1,5 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:universal_io/io.dart';
 import 'package:dating_app/constants/constants.dart';
 import 'package:dating_app/models/user_model.dart';
 import 'package:flutter/material.dart';

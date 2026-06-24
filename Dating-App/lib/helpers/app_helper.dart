@@ -1,7 +1,8 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+import 'package:universal_io/io.dart';
 import 'package:dating_app/constants/constants.dart';
 import 'package:dating_app/models/app_model.dart';
 import 'package:dating_app/models/user_model.dart';
@@ -9,6 +10,8 @@ import 'package:dating_app/plugins/geoflutterfire/geoflutterfire.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -19,6 +22,7 @@ class AppHelper {
 
   /// Restore VIP Account Subscription
   Future<void> restoreVipAccount({bool showMsg = false}) async {
+    if (kIsWeb) return;
     try {
       await InAppPurchase.instance.restorePurchases();
       // Check
@@ -124,6 +128,28 @@ class AppHelper {
 
   /// Get User location from formatted address
   Future<Placemark> getUserAddress(double latitude, double longitude) async {
+    if (kIsWeb) {
+      // geocoding package does not support web.
+      // Use a web-safe reverse geocoding API (e.g., OpenStreetMap Nominatim)
+      try {
+        final response = await http.get(Uri.parse(
+            'https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1'));
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          final address = data['address'];
+          return Placemark(
+            country: address['country'] ?? 'Unknown',
+            locality: address['city'] ?? address['town'] ?? address['village'] ?? 'Unknown',
+          );
+        }
+      } catch (e) {
+        debugPrint('Reverse geocoding error: $e');
+      }
+      return Placemark(
+        country: "Unknown",
+        locality: "Unknown",
+      );
+    }
     // Get Placemark to retrieve user formatted location address info
     // and returns the first place
     return (await placemarkFromCoordinates(latitude, longitude)).first;
@@ -155,6 +181,10 @@ class AppHelper {
     final String androidPackageName = AppModel().appInfo.androidPackageName;
     final String iOsAppId = AppModel().appInfo.iOsAppId;
 
+    if (kIsWeb) {
+      return "";
+    }
+
     // Check device OS
     if (Platform.isAndroid) {
       url = "https://play.google.com/store/apps/details?id=$androidPackageName";
@@ -173,6 +203,11 @@ class AppHelper {
         .get();
     // Update AppInfo object
     AppModel().setAppInfo(appInfo.data() ?? {});
+
+    if (kIsWeb) {
+      return 1;
+    }
+
     // Check Platform
     if (Platform.isAndroid) {
       return appInfo.data()?[ANDROID_APP_CURRENT_VERSION] ?? 1;

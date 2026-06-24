@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io';
+import 'package:universal_io/io.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dating_app/api/conversations_api.dart';
